@@ -12,4 +12,13 @@ router
     todoControllers.createTodo,
   );
 
+router
+  .route("/:id")
+  .put(
+    validateRequest(todoValidations.updateValidationSchema),
+    todoControllers.updateTodo,
+  )
+  .delete(todoControllers.deleteTodo);
+
+router.route("/").get(todoControllers.getTodos);
 export const todoRoutes = router;

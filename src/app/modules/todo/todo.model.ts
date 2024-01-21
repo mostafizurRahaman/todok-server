@@ -1,8 +1,8 @@
 import { Schema, model } from "mongoose";
-import { ITodo } from "./todo.interface";
+import { ITodo, ITodoModel } from "./todo.interface";
 import { TodoStatus, todoPriority } from "./todo.constant";
 
-const todoSchema = new Schema<ITodo>(
+const todoSchema = new Schema<ITodo, ITodoModel>(
   {
     title: {
       type: String,
@@ -35,6 +35,18 @@ const todoSchema = new Schema<ITodo>(
   },
 );
 
-const Todo = model<ITodo>("todo", todoSchema);
+// ** don't sent deleted todo in frontend :
+todoSchema.pre("find", async function (next) {
+  this.find({ isDeleted: { $eq: false } });
+
+  next();
+});
+
+//  ** define a todo static method:
+todoSchema.statics.isTodoExists = async (_id: string) => {
+  const isExists = await Todo.findById(_id);
+  return isExists;
+};
+const Todo = model<ITodo, ITodoModel>("todo", todoSchema);
 
 export default Todo;
